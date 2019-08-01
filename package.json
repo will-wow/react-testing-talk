@@ -1,0 +1,25 @@
+{
+  "name": "floki",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^0.11.1",
+    "mdx-deck": "^2.5.0",
+    "ncp": "^2.0.0",
+    "prettier": "^1.18.2",
+    "surge": "latest"
+  },
+  "scripts": {
+    "start": "mdx-deck src/deck.mdx",
+    "build": "mdx-deck build src/deck.mdx && npm run copy",
+    "copy": "ncp ./src/assets ./dist/assets",
+    "deploy": "surge -p dist --domain https://floki-talk.surge.sh",
+    "format": "prettier --write \"**/*.{js,json,md,mdx}\"",
+    "serve": " http-server dist"
+  },
+  "dependencies": {
+    "lodash": "^4.17.14",
+    "numeral": "^2.0.6"
+  }
+}
