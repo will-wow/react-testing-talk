@@ -1,26 +1,27 @@
 import React from "react";
 import { Image } from "mdx-deck";
 
-const BgImage = ({ src, children, color, opacity }) => {
+const BgImage = ({ opacity, backgroundSize, backgroundColor, ...props }) => {
   return (
-    <div
+    <Image
+      {...props}
       style={{
-        position: "relative",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        color: color || (opacity < 1 ? "black" : "white"),
-        backgroundColor: "white"
+        color: "white",
+        backgroundSize,
+        opacity,
+        backgroundColor
       }}
-    >
-      <Image src={src} style={{ position: "absolute", opacity }} />
-      <div style={{ position: "relative" }}>{children}</div>
-    </div>
+    />
   );
 };
 
 BgImage.defaultProps = {
-  opacity: 1
+  opacity: 1,
+  backgroundColor: "white",
+  backgroundSize: "contain"
 };
 
 export default BgImage;

@@ -1,12 +1,21 @@
-export { syntaxHighlighterPrism as theme } from "@mdx-deck/themes";
+import { prism } from "mdx-deck/themes";
 
-import { Notes, Image } from "mdx-deck";
-import { Split, FullScreenCode } from "mdx-deck/layouts";
+export const themes = [prism];
+
+import { Notes, Image, Split, FullScreenCode, Horizontal } from "mdx-deck";
 import BgImage from "./components/BgImage";
+
+import allTheThings from "./assets/all-the-things.jpg";
+import cypressDemo from "./assets/cypress.webp";
+import jasmineLogo from "./assets/jasmine.png";
+import jestLogo from "./assets/jest.png";
+import mochaLogo from "./assets/mocha.svg";
+import reactUsage from "./assets/react-usage.png";
+import reactLogo from "./assets/react.png";
 
 # Testing React in 2019
 
-![react](assets/react.png)
+<img alt="react logo" src={reactLogo} />
 
 Will Ockelmann-Wagner
 
@@ -16,7 +25,7 @@ wow@carbonfive.com | [github.com/will-wow](http://github.com/will-wow)
 
 React is Everywhere
 
-![react-usage](assets/react-usage.png)
+<img alt="react usage" src={reactUsage} />
 
 <Notes>
 
@@ -40,7 +49,25 @@ React Testing is All Over the Place
 
 _Testing_ React, on the other hand, is a little all over the place right now.
 
-You've got three popular test runners, three testing frameworks, and three main types of test for unit testing. For browser testing, luckily, it seems like the internet is converging on cypress, so that's an easier decision.
+You've got three popular test runners, three testing frameworks, and three main types of test for unit testing. We'll walk through all of these tonight.
+
+</Notes>
+
+---
+
+Cypress.io: TestableLA Approved
+
+<img alt="cypress.io" src={cypressDemo} />
+
+<Notes>
+
+As a sidenote, the browser testing landscape is a little clearer.
+TestableLA has had a couple talks about Cypress last year, including one from a cypress dev
+At this point, if your backend frameworks comes with a browser testing tool, then that's probably the
+way to go. But if your frontend is more standalone, then cypress is a really nice choice.
+
+I used it on my last project, and in four months we didn't have a single flaky test failure, which is pretty wild. But this talk is focued on unit testing frameworks, so we can talk more about cypress after,
+if anyone is interested.
 
 </Notes>
 
@@ -48,11 +75,43 @@ You've got three popular test runners, three testing frameworks, and three main 
 
 I used them all... together
 
-| Test Runner | Test FrameWork            | Test Style   |
+| Test Runner | Test Framework            | Test Style   |
 | ----------- | ------------------------- | ------------ |
 | **Jest**    | **Enzyme**                | **Shallow**  |
 | Jasmine     | **React Testing Library** | **Mount**    |
 | Mocha       | **react-test-renderer**   | **Snapshot** |
+
+<Notes>
+
+In a recent project, we ended up using all of these in one codebase.
+I wouldn't nessecarily reccomend that. Over time we learned that all of these
+tools can do all three kinds of test style, so you probably only need one.
+
+Still it means I got the chance to compare and contrast the three and report back to you!
+
+</Notes>
+
+---
+
+<BgImage src={allTheThings} />
+
+<Notes>
+
+So yeah, don't use all the things
+
+</Notes>
+
+---
+
+# Test Runners
+
+<Horizontal>
+
+<img src={jestLogo} />
+<img src={jasmineLogo} />
+<img src={mochaLogo} />
+
+</Horizontal>
 
 ---
 
