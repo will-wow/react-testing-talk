@@ -17,7 +17,11 @@
     "serve": " http-server dist"
   },
   "dependencies": {
+    "@emotion/core": "^10.0.14",
+    "@emotion/styled": "^10.0.14",
+    "@rebass/emotion": "^3.2.0",
     "lodash": "^4.17.14",
-    "numeral": "^2.0.6"
+    "numeral": "^2.0.6",
+    "rebass": "^3.2.0"
   }
 }

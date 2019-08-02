@@ -1,8 +1,10 @@
 import { prism } from "mdx-deck/themes";
+import { Flex, Box, Heading, Image } from "@rebass/emotion";
+import theme from "./theme";
 
-export const themes = [prism];
+export const themes = [prism(theme)];
 
-import { Notes, Image, Split, FullScreenCode, Horizontal } from "mdx-deck";
+import { Notes, Split, FullScreenCode, Horizontal, Invert } from "mdx-deck";
 import BgImage from "./components/BgImage";
 
 import allTheThings from "./assets/all-the-things.jpg";
@@ -11,19 +13,33 @@ import jasmineLogo from "./assets/jasmine.png";
 import jestLogo from "./assets/jest.png";
 import mochaLogo from "./assets/mocha.svg";
 import reactUsage from "./assets/react-usage.png";
-import reactLogo from "./assets/react.png";
+import reactLogo from "./assets/react.svg";
+
+<Flex flexDirection="column" alignItems="center">
 
 # Testing React in 2019
 
-<img alt="react logo" src={reactLogo} />
+<Image alt="react logo" src={reactLogo} flex="1" height={400} width={400} />
 
-Will Ockelmann-Wagner
+## Will Ockelmann-Wagner
 
 wow@carbonfive.com | [github.com/will-wow](http://github.com/will-wow)
 
+</Flex>
+
+<Notes>
+
+Hi, C5
+We write a lot of react, and are into testing
+How many people here work at a company that writes react?
+How many have written a react component?
+How many are happy with their testing strategy?
+
+</Notes>
+
 ---
 
-React is Everywhere
+# React is Everywhere
 
 <img alt="react usage" src={reactUsage} />
 
@@ -37,13 +53,17 @@ means React isn't going away any time soon, there's a long tail for these framew
 
 ---
 
-React Testing is All Over the Place
+<div style={{width: "80%", textAlign: 'center'}}>
+
+## React Testing is All Over the Place
 
 | Test Runner | Test Framework        | Test Style |
 | ----------- | --------------------- | ---------- |
 | Jest        | Enzyme                | Shallow    |
-| Jasmine     | React Testing Library | Mount      |
+| Jasmine     | React Testing Library | Render     |
 | Mocha       | react-test-renderer   | Snapshot   |
+
+</div>
 
 <Notes>
 
@@ -55,7 +75,7 @@ You've got three popular test runners, three testing frameworks, and three main 
 
 ---
 
-Cypress.io: TestableLA Approved
+## Cypress.io: TestableLA Approved
 
 <img alt="cypress.io" src={cypressDemo} />
 
@@ -73,13 +93,17 @@ if anyone is interested.
 
 ---
 
-I used them all... together
+<div style={{width: "80%", textAlign: 'center'}}>
+
+## I used them all... together
 
 | Test Runner | Test Framework            | Test Style   |
 | ----------- | ------------------------- | ------------ |
 | **Jest**    | **Enzyme**                | **Shallow**  |
-| Jasmine     | **React Testing Library** | **Mount**    |
+| Jasmine     | **React Testing Library** | **Render**   |
 | Mocha       | **react-test-renderer**   | **Snapshot** |
+
+</div>
 
 <Notes>
 
@@ -105,19 +129,186 @@ So yeah, don't use all the things
 
 # Test Runners
 
-<Horizontal>
+<Flex justifyContent="space-between" width="60%">
 
-<img src={jestLogo} />
 <img src={jasmineLogo} />
 <img src={mochaLogo} />
+<img src={jestLogo} />
 
-</Horizontal>
+</Flex>
+
+<Notes>
+
+How many people have used jasmine, mocha, jest
+
+</Notes>
+
+---
+
+# BDD Expectations
+
+describe/it/should vs. test/assert
+
+<Notes>
+
+All of these test runners either include or support BDD-style expectations, where you use describe, it, and should to write your tests. There's also TDD-style, where you use 'test' and 'assert', but BDD seems to be in vogue right now.
+
+</Notes>
+
+---
+
+```javascript
+describe("simple tests", () => {
+  it("finds matching objects", () => {
+    expect([1, 2, 3]).toEqual([1, 2, 3]);
+  });
+
+  it("finds partial string matches", () => {
+    expect("Hello World").toContain("World");
+  });
+
+  it("finds missing values", () => {
+    expect([1, 2, 3]).toEqual([1, 3]);
+  });
+});
+```
+
+<Notes>
+
+Here's what Jest looks like, but all three of these are going to look about the same.
+Notice that this isn't react-specific. Jest, Jasmine, and Mocha are all general-purpose
+test runners, they can run tests for Node or whatever too.
+So how to choose?
+
+</Notes>
+
+---
+
+<img src={jasmineLogo} />
+
+- Familiar from AngularJS days
+- Runs in a browser with Karma
+- Runs headless in node these days
+- Still works just fine 🤷‍♂
+
+---
+
+<img src={mochaLogo} />
+
+- Popular Node test framework 👍
+- Usually paired with Chai for BDD expectations 🍵
+
+---
+
+<img src={jestLogo} />
+
+- New hotness :star-struck:
+- Great Visual Studio Code integration 🤓
+- Comes with change watcher and code coverage 👀
+- The standard choice for React ✅
+
+---
+
+<Invert>
+
+# TL;DR: Choose Jest for new projects
+
+# Don't change existing projects
+
+</Invert>
 
 ---
 
 # Sample app
 
-<iframe src="https://todo-react-testing.surge.sh/" width="1000" height="600" />
+<iframe
+  src="https://todo-react-testing.surge.sh/"
+  width="1000"
+  height="600"
+  style={{ background: "#FFFCF7" }}
+/>
+
+<Notes>
+
+Before we continue: I like having a concrete example to use in a talk,
+so here's a simple Todo app, made with react and redux.
+
+- Add, remove done
+- Change name
+- When no more todos, get custom message with name
+
+</Notes>
+
+---
+
+```jsx
+<Connected(TodoContainer)>
+  <TodoList>
+    <Connected(UsernameInput) />
+    {isAllDone && <Connected(InboxZero) />}
+    <TodoItem />
+    <TodoItem />
+    Done Items
+    <TodoItem />
+    <TodoItem />
+  </TodoList>
+</TodoContainer>
+```
+
+<Notes>
+
+Here's what more or less the component structure looks like
+So there's a TodoContainer, which is connected to the redux store
+It renders a TodoList, which renders a Username input and conditionally an InboxZero message, both of which are also connected
+
+Finally, it renders a TodoItem for each item. Pretty standard stuff.
+
+</Notes>
+
+---
+
+# Test Styles
+
+First decision: shallow or full render
+
+---
+
+# Shallow Render
+
+```jsx
+<TodoList>
+  <Connected(UsernameInput) />
+  <TodoItem />
+  <TodoItem />
+  Done Items
+  <TodoItem />
+  <TodoItem />
+</TodoList>
+```
+
+---
+
+# Mount Test
+
+```html
+<div class="TodoList">
+  <div>
+    <h2>Todo List for:</h2>
+    <input class="UsernameInput" />
+  </div>
+  <hr />
+  <div class="TodoItem">
+    <input placeholder="Enter a todo item" value="Learn Enzyme" />
+    <button>Done</button>
+    <button>X</button>
+  </div>
+  <div>
+    <input placeholder="Enter a todo item" value="Learn RTL" />
+    <button>Done</button>
+    <button>X</button>
+  </div>
+</div>
+```
 
 ---
 
