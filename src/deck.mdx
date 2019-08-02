@@ -6,6 +6,7 @@ export const themes = [prism(theme)];
 
 import { Notes, Split, FullScreenCode, Horizontal, Invert } from "mdx-deck";
 import BgImage from "./components/BgImage";
+import Img from "./components/Img";
 
 import allTheThings from "./assets/all-the-things.jpg";
 import cypressDemo from "./assets/cypress.webp";
@@ -19,7 +20,7 @@ import reactLogo from "./assets/react.svg";
 
 # Testing React in 2019
 
-<Image alt="react logo" src={reactLogo} flex="1" height={400} width={400} />
+<Img alt="react logo" src={reactLogo} />
 
 ## Will Ockelmann-Wagner
 
@@ -41,7 +42,7 @@ How many are happy with their testing strategy?
 
 # React is Everywhere
 
-<img alt="react usage" src={reactUsage} />
+<Img alt="react usage" src={reactUsage} />
 
 <Notes>
 
@@ -77,7 +78,7 @@ You've got three popular test runners, three testing frameworks, and three main 
 
 ## Cypress.io: TestableLA Approved
 
-<img alt="cypress.io" src={cypressDemo} />
+<Img alt="cypress.io" src={cypressDemo} />
 
 <Notes>
 
@@ -129,11 +130,11 @@ So yeah, don't use all the things
 
 # Test Runners
 
-<Flex justifyContent="space-between" width="60%">
+<Flex justifyContent="space-between">
 
-<img src={jasmineLogo} />
-<img src={mochaLogo} />
-<img src={jestLogo} />
+<Img src={jasmineLogo} />
+<Img src={mochaLogo} />
+<Img src={jestLogo} />
 
 </Flex>
 
@@ -184,23 +185,23 @@ So how to choose?
 
 ---
 
-<img src={jasmineLogo} />
+<Img src={jasmineLogo} sx={{ mb: 3 }} />
 
 - Familiar from AngularJS days
 - Runs in a browser with Karma
 - Runs headless in node these days
-- Still works just fine 🤷‍♂
+- Still works just fine
 
 ---
 
-<img src={mochaLogo} />
+<Img src={mochaLogo} />
 
 - Popular Node test framework 👍
 - Usually paired with Chai for BDD expectations 🍵
 
 ---
 
-<img src={jestLogo} />
+<Img src={jestLogo} />
 
 - New hotness :star-struck:
 - Great Visual Studio Code integration 🤓
@@ -217,6 +218,109 @@ So how to choose?
 
 </Invert>
 
+<Notes>
+
+So basically, if you're starting a new project, probably go with Jest.
+If you've got an exisitng project, or everybody is used to some other runner, then there's not a big reason to switch.
+For the rest of this talk I'll stick with Jest, but this stuff works with any runner.
+
+</Notes>
+
+---
+
+# Test Libraries
+
+<Notes>
+
+Now we can get into the testing libraries, which isn't so easy of a choice. I'll go through them at a high level,
+and then we'll dig in to see the differences.
+
+</Notes>
+
+---
+
+<div style={{width: "80%", textAlign: 'center'}}>
+
+# Enzyme
+
+|                |                 |
+| -------------- | --------------- |
+| Author         | AirBnB          |
+| Initial Commit | 8/10/2015       |
+| Initial Commit | 17,699          |
+| Strengh        | Shallow testing |
+| Weakness       | Refactoring     |
+
+</div>
+
+<Notes>
+
+If you've testing a react app in the last few years, you probably used enzyme.
+It's mature and well supported, and particularly good for shallow testing, which we'll get into in a bit
+But, you'll find that refactoring your code without changing functionality can break enzyme tests
+
+</Notes>
+
+---
+
+<div style={{width: "80%", textAlign: 'center'}}>
+
+# React Testing Library
+
+|                |                      |
+| -------------- | -------------------- |
+| Author         | Kent Dodds           |
+| Initial Commit | 3/19/2018            |
+| Github Stars   | 8,211                |
+| Strengh        | User-focused testing |
+| Weakness       | Isolated tests       |
+
+</div>
+
+<Notes>
+
+Then last year, Kent Dodds came out with RTL, and it's really taken off
+It's focused on getting you to write tests from a user perspective.
+The idea is that if you refactor the structure or classnames in a component
+but it doesn't change from a UX perspective, then the test should still pass
+But, it does make it harder to write isolated tests, as we'll see
+
+</Notes>
+
+---
+
+> The more your tests resemble the way your software is used, the more confidence they can give you.
+
+<Notes>
+
+RTL Guiding priciple
+
+</Notes>
+
+---
+
+<div style={{width: "80%", textAlign: 'center'}}>
+
+# react-test-renderer
+
+|                |                          |
+| -------------- | ------------------------ |
+| Author         | Facebook                 |
+| Initial Commit | :shrug:                  |
+| Strengh        | Simplicity, React Native |
+| Weakness       | Low level                |
+
+</div>
+
+<Notes>
+
+Finally, React comes with its own testing tools, which enzyme is a wrapper over
+They do the job, but are a little less user-friendly
+They don't rely on a virtual dom, so support react native
+particularly good for snapshot tests
+
+</Notes>
+
 ---
 
 # Sample app
@@ -230,7 +334,8 @@ So how to choose?
 
 <Notes>
 
-Before we continue: I like having a concrete example to use in a talk,
+To guide us through looking at the options
+I like having a concrete example to use in a talk,
 so here's a simple Todo app, made with react and redux.
 
 - Add, remove done
@@ -258,7 +363,7 @@ so here's a simple Todo app, made with react and redux.
 <Notes>
 
 Here's what more or less the component structure looks like
-So there's a TodoContainer, which is connected to the redux store
+There's a TodoContainer, which is connected to the redux store
 It renders a TodoList, which renders a Username input and conditionally an InboxZero message, both of which are also connected
 
 Finally, it renders a TodoItem for each item. Pretty standard stuff.
@@ -267,9 +372,22 @@ Finally, it renders a TodoItem for each item. Pretty standard stuff.
 
 ---
 
-# Test Styles
+# Decisions, decisions...
 
-First decision: shallow or full render
+Shallow vs Full Render
+
+Tradtional Expectations vs Snapshots
+
+<Notes>
+
+There are two decisions you have to make about any component test
+Shallow renders one component, full renders children
+Traditional expectations are how you normally write tests
+Expect x to have prop y
+Snapshots take a snapshot of the dom, and fail if it changes
+Let's go through them
+
+</Notes>
 
 ---
 
@@ -284,6 +402,55 @@ First decision: shallow or full render
   <TodoItem />
   <TodoItem />
 </TodoList>
+```
+
+<Notes>
+
+In a shallow test, you only render one level deep. So if I shallow-rendered the TodoList component, it renders
+its children, which are TodoItem components. But it doesn't render them, so it doesn't go all the way to the level of buttons and inputs
+Makes for good unit testing - TodoList doesn't know how its children render themselves, so arguably its test shouldn't either
+
+</Notes>
+
+---
+
+```jsx
+import { shallow } from "enzyme";
+
+describe("TodoList", () => {
+  let wrapper;
+  let props;
+
+  beforeEach(() => {
+    props = {
+      todoList: TODO_LIST,
+      onTodoChange: jest.fn(),
+      onDelete: jest.fn()
+    };
+
+    // Shallow render
+    wrapper = shallow(<TodoList {...props} />);
+  });
+});
+```
+
+<Notes>
+
+Here's how you set up a shallow render in enzyme. 
+Import shallow, and render the component with some props
+
+</Notes>
+
+---
+
+```jsx
+const items = wrapper.find("TodoItem");
+
+// Correct number of items exist
+expect(items).toHaveLength(TODO_LIST.length);
+
+// Passing todo list
+expect(items.first().prop("todo")).toEqual(TODO_LIST[0]);
 ```
 
 ---
@@ -308,6 +475,19 @@ First decision: shallow or full render
     <button>X</button>
   </div>
 </div>
+```
+
+<Notes>
+
+Full render renders all the way to the dom, from the component you start with
+You can see the TodoList, Username input, and individual TodoItems, which are all components
+Can assert on any child component
+
+</Notes>
+
+---
+
+```jsx
 ```
 
 ---
