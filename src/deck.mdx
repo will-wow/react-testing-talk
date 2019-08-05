@@ -27,6 +27,8 @@ import jestTerminal from "./assets/jest-terminal.png";
 import jestVsCode from "./assets/jest-vscode.png";
 import kentShallow from "./assets/kent-shallow.png";
 import mountFail from "./assets/mount-fail.png";
+import snapshotGood from "./assets/snapshot-good.png";
+import snapshotBad from "./assets/snapshot-bad.png";
 
 # Testing React in 2019
 
@@ -877,7 +879,7 @@ it("changes todo items", () => {
 
 <Notes>
 
-So more like enzyme, without some of the user-centric helpers. But a totally 
+So more like enzyme, without some of the user-centric helpers. But a totally
 servicable library, and its nice that its by the react team,
 so it'll always support the latest features.
 There are also only a few matchers, so for simple tests there's less to learn.
@@ -890,9 +892,93 @@ There are also only a few matchers, so for simple tests there's less to learn.
 
 <Notes>
 
-So far we've seen a couple different ways to write standard tests.
+So far we've seen a few different ways to write standard tests.
+Jest has a second method for writing tests that works with all these libraries
+It's called snapshot testing, and it can be pretty handy in specific use cases
 
-Jest has a second method for writing tests that works with all these libraries.
+In a normal test, you come up with the specific things that should be true
+In a snapshot test you take a snapshot of the state of the whole dom
+Or any other JS object actually
+This gets saved to a file, and then the next time you run the tests, it checks if that
+output has changed at all. If it does, the test fails
+
+</Notes>
+
+---
+
+<Img src={snapshot} />
+
+<Notes>
+
+Here's a failing snaphot, from an enzyme shallow test in this case.
+I broke the conditional logic about only showing the inbox zero message when there's nothing to do.
+The snapshot failed, and the diff shows the problem is this component wasn't in the snapshot last
+time, but is now.
+
+This is pretty sweet. I didn't have to write any specific test for this functionality - I just took a
+snapshot, and it handled that test for me.
+
+</Notes>
+
+---
+
+# Can I Stop Writing Tests Now?
+
+<Notes>
+
+So... does that mean you don't need real tests anymore? Just snapshot everything and call it a day?
+
+</Notes>
+
+---
+
+<BgImage src="https://media.giphy.com/media/BiRHhbCpFK8k8/giphy.gif" />
+
+<Notes>
+
+Yeah, that doesn't go as well as you think it will
+
+</Notes>
+
+---
+
+<Img src={snapshotBad} />
+
+<Notes>
+
+Unfortunatly snapshot failures often look like this. Can you see the problem?
+Yeah, I just added a little div around some components, and everything goes red.
+You can look closely and figure it out, but I've found that in practice, devs
+get tired of that, and just re-record snapshots without looking at them.
+Me included!
+So I'd reccomend limiting the scope of snapshots, so you know that if one fails,
+it might be real. Shallow is a good way to do that.
+
+</Notes>
+
+---
+
+# Everybody's doing it
+
+```jsx
+// Enyzyme
+expect(wrapper.debug()).toMatchSnapshot();
+// React Testing Library
+expect(result).toMatchSnapshot();
+// react-test-renderer
+expect(testRenderer.toJSON()).toMatchSnapshot();
+// react-test-renderer shallow
+expect(testRenderer.getRenderOutput()).toMatchSnapshot();
+```
+
+<Notes>
+
+If you want to use snapshots,
+all these libraries have a way of outputting a JSON representation of the DOM,
+which can be easily snapshotted. So whatever library you pick, you can use this.
+
+But to keep snapshots small, one thing to do would be to use RTL for normal tests,
+and RTR shallow for snapshots. YMMV.
 
 </Notes>
 
