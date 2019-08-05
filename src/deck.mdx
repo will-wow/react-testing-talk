@@ -15,8 +15,7 @@ import jestLogo from "./assets/jest.png";
 import mochaLogo from "./assets/mocha.svg";
 import reactUsage from "./assets/react-usage.png";
 import reactLogo from "./assets/react.svg";
-
-<Flex flexDirection="column" alignItems="center">
+import kentShallow from "./assets/kent-shallow.png";
 
 # Testing React in 2019
 
@@ -25,8 +24,6 @@ import reactLogo from "./assets/react.svg";
 ## Will Ockelmann-Wagner
 
 wow@carbonfive.com | [github.com/will-wow](http://github.com/will-wow)
-
-</Flex>
 
 <Notes>
 
@@ -289,7 +286,9 @@ But, it does make it harder to write isolated tests, as we'll see
 
 ---
 
-> The more your tests resemble the way your software is used, the more confidence they can give you.
+"The more your tests resemble the way your software is used,  
+the more confidence they can give you."  
+-- Kent Dodds
 
 <Notes>
 
@@ -314,10 +313,10 @@ RTL Guiding priciple
 
 <Notes>
 
-Finally, React comes with its own testing tools, which enzyme is a wrapper over
-They do the job, but are a little less user-friendly
+Finally, React has always come with its own test utils. But this year they
+added react-test-renderer, which renders a react component to JSON
 They don't rely on a virtual dom, so support react native
-particularly good for snapshot tests
+particularly good for snapshot tests, but supports some other test types.
 
 </Notes>
 
@@ -334,13 +333,12 @@ particularly good for snapshot tests
 
 <Notes>
 
-To guide us through looking at the options
-I like having a concrete example to use in a talk,
-so here's a simple Todo app, made with react and redux.
+As we walk through these choices, I find it's nice to have a concerete example
+The traditional todo app, made with react and redux.
 
 - Add, remove done
-- Change name
-- When no more todos, get custom message with name
+- When all are done, you get a Inbox Zero message
+- That message is configurable
 
 </Notes>
 
@@ -364,11 +362,47 @@ so here's a simple Todo app, made with react and redux.
 
 Here's what more or less the component structure looks like
 There's a TodoContainer, which is connected to the redux store
-It renders a TodoList, which renders a Username input and conditionally an InboxZero message, both of which are also connected
+It renders a TodoList component, which renders some todo items
 
-Finally, it renders a TodoItem for each item. Pretty standard stuff.
+also a Username input and conditionally an InboxZero message, both of which are also connected to redux
+We'll see why that's important for testing in a bit
 
 </Notes>
+
+---
+
+# TodoList Props
+
+```jsx
+const TODO_LIST = [{id: 1, title: 'Get Milk'}, ...];
+const props = {
+  todoList: TODO_LIST,
+  onTodoChange: jest.fn(),
+  onDelete: jest.fn()
+};
+```
+
+<Notes>
+
+As a note, for all these tests we'll use this same set of props
+in React a component takes a set of props to render itself
+React functions are functions that take props and return HTML
+So if todo list has two items, then the component will render two input boxes
+Also, jest.fn is how you make a spy in jest.
+A spy is a function that we can make return something if we want
+But either way can check if its been called in a test.
+
+TodoList interacts with the redux store, so clicking a button won't directly do anything except call one of these functions
+That means...
+
+</Notes>
+
+---
+
+# Most React Tests test two things:
+
+1. Given **props**, does it render the right **elements**?
+1. Given an **event**, does it **call** the right functions?
 
 ---
 
@@ -407,51 +441,140 @@ Let's go through them
 <Notes>
 
 In a shallow test, you only render one level deep. So if I shallow-rendered the TodoList component, it renders
-its children, which are TodoItem components. But it doesn't render them, so it doesn't go all the way to the level of buttons and inputs
+its children, which are TodoItem components. But it doesn't go and render those children,
+so it doesn't go all the way to the level of buttons and inputs
 Makes for good unit testing - TodoList doesn't know how its children render themselves, so arguably its test shouldn't either
 
 </Notes>
 
 ---
 
+# Enzyme Shallow
+
 ```jsx
 import { shallow } from "enzyme";
-
-describe("TodoList", () => {
-  let wrapper;
-  let props;
-
-  beforeEach(() => {
-    props = {
-      todoList: TODO_LIST,
-      onTodoChange: jest.fn(),
-      onDelete: jest.fn()
-    };
-
-    // Shallow render
-    wrapper = shallow(<TodoList {...props} />);
-  });
+it("renders all todo items", () => {
+  const wrapper = shallow(<TodoList {...props} />);
+  expect(wrapper.find("TodoItem")).toHaveLength(TODO_LIST.length);
 });
 ```
 
 <Notes>
 
-Here's how you set up a shallow render in enzyme. 
+Here's how you set up a shallow render in enzyme.
 Import shallow, and render the component with some props
+Then you have a wrapper that you can traverse and assert on
+Check that it has one TodoItem for each list item.
 
 </Notes>
 
 ---
 
 ```jsx
-const items = wrapper.find("TodoItem");
-
-// Correct number of items exist
-expect(items).toHaveLength(TODO_LIST.length);
-
-// Passing todo list
-expect(items.first().prop("todo")).toEqual(TODO_LIST[0]);
+it("passes props down", () => {
+  expect(
+    wrapper
+      .find("TodoItem")
+      .first()
+      .prop("todo")
+  ).toEqual(TODO_LIST[0]);
+});
 ```
+
+<Notes>
+
+Since we're not rendering the actual inputs, we can't check they they have the right data
+All we can do is check that we're passing the right data to the right component.
+Then can write another test that checks that, given some todo data, the TodoItem component show it in an input
+So nice and isolated
+
+</Notes>
+
+---
+
+# Shallow Downside: Refactoring
+
+<Notes>
+
+I like this approach
+One big downside is refactoring - change to the code, but not what it does
+a good react dev looks for opportunities to refactor a chunk of html into a component
+Shallow makes that harder
+look at an example:
+
+</Notes>
+
+---
+
+```jsx
+<TodoList>
+  Things to do:
+  <TodoItem todo={todos[0]}>
+  <TodoItem todo={todos[1]}>
+  Done:
+  <TodoItem todo={todos[2]}>
+  <TodoItem todo={todos[3]}>
+</TodoList>
+```
+
+<Notes>
+
+So here's how this looks now: there's some code that seperates out done todos and puts them under a header
+But maybe we want to add a wrapper component, TodoWrapper, that gets a list of either to-do or done items, and renders them
+with the right header.
+That would look like:
+
+</Notes>
+
+---
+
+# Refactored
+
+```jsx
+<TodoList>
+  <TodoWrapper done={false} todos={[todos[0], todos[1]]} />
+  <TodoWrapper done={true} todos={[todos[2], todos[3]]} />
+</TodoList>
+```
+
+<Notes>
+
+Seems like a good refactor, but now all the tests are broken, because TodoList isn't rendering TodoItems anymore
+So even though from a user perspective the UX is exactly the same, we have to totally rewrite our tests
+This might make you decide not to make the right refactor, which is a bummer
+
+</Notes>
+
+---
+
+# react-test-render Shallow 
+
+```jsx
+import { createRenderer } from "react-test-renderer/shallow";
+const renderer = createRenderer();
+renderer.render(<TodoList {...props} />);
+const component = renderer.getRenderOutput();
+```
+
+<Notes>
+
+also lets you shallow render, but you can't do much except snapshot the
+result, which we'll see later.
+So less interesting
+
+</Notes>
+
+---
+
+# React Testing Library
+
+<Img src={kentShallow} />
+
+<Notes>
+
+Kent Dodds isn't a fan of shallow testing, so... yeah, no shallow in his library.
+
+</Notes>
 
 ---
 
@@ -480,8 +603,8 @@ expect(items.first().prop("todo")).toEqual(TODO_LIST[0]);
 <Notes>
 
 Full render renders all the way to the dom, from the component you start with
-You can see the TodoList, Username input, and individual TodoItems, which are all components
-Can assert on any child component
+You can see the TodoList, Username input, and individual TodoItems, which are all components, rendered down to dom
+So you can do things like trigger a click on a button that should effect a parent's state
 
 </Notes>
 
@@ -500,9 +623,3 @@ Can assert on any child component
     - React Testing Library
     - Hooks (React.useEffect + spy)
     - --coverage
-  - Other options
-    - Mocha/Chai
-    - Jasmine
-- Browser Testing
-  - Cypress
-  - Polly
