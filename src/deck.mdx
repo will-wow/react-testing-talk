@@ -15,6 +15,9 @@ import jestLogo from "./assets/jest.png";
 import mochaLogo from "./assets/mocha.svg";
 import reactUsage from "./assets/react-usage.png";
 import reactLogo from "./assets/react.svg";
+import jestCoverage from "./assets/jest-coverage.png";
+import jestTerminal from "./assets/jest-terminal.png";
+import jestVsCode from "./assets/jest-vscode.png";
 import kentShallow from "./assets/kent-shallow.png";
 
 # Testing React in 2019
@@ -207,11 +210,36 @@ So how to choose?
 
 ---
 
+# Jest: Visual Studio Code integration
+
+<Img src={jestVsCode} />
+
+---
+
+# Jest: Diffing
+
+<Img src={jestTerminal} />
+
+---
+
+# Jest: Code Coverage Built In
+
+<Img src={jestCoverage} />
+
+<Notes>
+
+Finally, jest has code coverage built in
+So when Rit asks what your code coverage is, you can answer him right away
+
+</Notes>
+
+---
+
 <Invert>
 
 # TL;DR: Choose Jest for new projects
 
-# Don't change existing projects
+# Don't re-write existing tests
 
 </Invert>
 
@@ -219,7 +247,7 @@ So how to choose?
 
 So basically, if you're starting a new project, probably go with Jest.
 If you've got an exisitng project, or everybody is used to some other runner, then there's not a big reason to switch.
-For the rest of this talk I'll stick with Jest, but this stuff works with any runner.
+For the rest of this talk I'll stick with Jest, but other than snapshots this'll all be the same in any runner.
 
 </Notes>
 
@@ -305,7 +333,7 @@ RTL Guiding priciple
 |                |                          |
 | -------------- | ------------------------ |
 | Author         | Facebook                 |
-| Initial Commit | :shrug:                  |
+| Initial Commit | 3/28/2019                |
 | Strengh        | Simplicity, React Native |
 | Weakness       | Low level                |
 
@@ -547,7 +575,7 @@ This might make you decide not to make the right refactor, which is a bummer
 
 ---
 
-# react-test-render Shallow 
+# react-test-render Shallow
 
 ```jsx
 import { createRenderer } from "react-test-renderer/shallow";
@@ -575,6 +603,10 @@ So less interesting
 Kent Dodds isn't a fan of shallow testing, so... yeah, no shallow in his library.
 
 </Notes>
+
+---
+
+# Mount
 
 ---
 
