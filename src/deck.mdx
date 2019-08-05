@@ -4,14 +4,7 @@ import theme from "./theme";
 
 export const themes = [prism(theme)];
 
-import {
-  Notes,
-  Split,
-  FullScreenCode,
-  Horizontal,
-  Invert,
-  Image
-} from "mdx-deck";
+import { Notes, Invert } from "mdx-deck";
 import BgImage from "./components/BgImage";
 import Img from "./components/Img";
 
@@ -984,11 +977,58 @@ and RTR shallow for snapshots. YMMV.
 
 ---
 
-- Unit Testing
-  - Jest
-    - Enzyme Shallow
-    - Enzyme Mount
-    - Snapshot Testing (w/ Test Renderer): https://reactjs.org/docs/test-renderer.html)
-    - React Testing Library
-    - Hooks (React.useEffect + spy)
-    - --coverage
+# Wrapping Up: Combinations
+
+<Notes>
+
+So we've talked about a bunch of different tools and techniques.
+How do you use them together?
+
+</Notes>
+
+---
+
+# Combination 1
+
+- Enzyme Shallow unit tests
+- Enzyme Mount for multi-component components (like a date picker)
+- Enzyme Mount Snapshots for pages
+- Cypress for integration testing
+
+<Notes>
+
+What we did on last project
+Mostly enzyme
+Used mount for complicated interatctions that went across multiple components
+Did a mount snapshot for every page in the app, so everything 
+got covered by some test. They were sort of a pain
+
+
+</Notes>
+
+# Combination 2
+
+<Notes>
+
+- React Testing Library component tests
+- react-test-renderer shallow snapshot test for every component
+- Cypress Testing Library Integration Tests
+
+</Notes>
+
+
+---
+
+# It's all just props => elements, events => spies
+
+<Notes>
+
+In the end, the testing technique for all these tools is the same
+Given props, what renders, and given events what's called.
+
+So the choice is mostly about what the team is familiar with, or
+interesting in using.
+
+Good luck!
+
+</Notes>
