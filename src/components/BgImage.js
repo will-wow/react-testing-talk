@@ -1,15 +1,23 @@
-import React from "react";
+/** @jsx jsx */
+import { jsx } from "theme-ui";
+
 import { Image } from "mdx-deck";
 
-const BgImage = ({ opacity, backgroundSize, backgroundColor, ...props }) => {
+const BgImage = ({
+  opacity,
+  color,
+  backgroundSize,
+  backgroundColor,
+  ...props
+}) => {
   return (
     <Image
       {...props}
-      style={{
+      sx={{
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        color: "white",
+        color,
         backgroundSize,
         opacity,
         backgroundColor
@@ -19,6 +27,7 @@ const BgImage = ({ opacity, backgroundSize, backgroundColor, ...props }) => {
 };
 
 BgImage.defaultProps = {
+  color: "white",
   opacity: 1,
   backgroundColor: "white",
   backgroundSize: "contain"

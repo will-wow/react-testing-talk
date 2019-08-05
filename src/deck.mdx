@@ -1,10 +1,17 @@
 import { prism } from "mdx-deck/themes";
-import { Flex, Box, Heading, Image } from "@rebass/emotion";
+import { Flex, Box, Heading } from "@rebass/emotion";
 import theme from "./theme";
 
 export const themes = [prism(theme)];
 
-import { Notes, Split, FullScreenCode, Horizontal, Invert } from "mdx-deck";
+import {
+  Notes,
+  Split,
+  FullScreenCode,
+  Horizontal,
+  Invert,
+  Image
+} from "mdx-deck";
 import BgImage from "./components/BgImage";
 import Img from "./components/Img";
 
@@ -19,6 +26,7 @@ import jestCoverage from "./assets/jest-coverage.png";
 import jestTerminal from "./assets/jest-terminal.png";
 import jestVsCode from "./assets/jest-vscode.png";
 import kentShallow from "./assets/kent-shallow.png";
+import mountFail from "./assets/mount-fail.png";
 
 # Testing React in 2019
 
@@ -606,11 +614,16 @@ Kent Dodds isn't a fan of shallow testing, so... yeah, no shallow in his library
 
 ---
 
-# Mount
+# Mount / Full Render
+
+<Notes>
+
+Alternative is reneering the whole tree - a component, and all its children, down to the DOM
+Called mount in enzyme, but you can think of it as a full instead of shallow render
+
+</Notes>
 
 ---
-
-# Mount Test
 
 ```html
 <div class="TodoList">
@@ -624,26 +637,211 @@ Kent Dodds isn't a fan of shallow testing, so... yeah, no shallow in his library
     <button>Done</button>
     <button>X</button>
   </div>
-  <div>
-    <input placeholder="Enter a todo item" value="Learn RTL" />
-    <button>Done</button>
-    <button>X</button>
-  </div>
+  ...
 </div>
 ```
 
 <Notes>
 
-Full render renders all the way to the dom, from the component you start with
-You can see the TodoList, Username input, and individual TodoItems, which are all components, rendered down to dom
+Here's what the TodoList looks like from a mount test.
+You can see the TodoList, Username input, and individual TodoItems, which are all components
+But they're rendered down to divs and buttons, instead of components
 So you can do things like trigger a click on a button that should effect a parent's state
 
 </Notes>
 
 ---
 
+# Enymze mount
+
 ```jsx
+import { mount } from "enzyme";
+
+const wrapper = mount(<TodoList {...props} />);
 ```
+
+<Notes>
+
+Easy as shallow, just different import
+
+</Notes>
+
+---
+
+```jsx
+it("changes todo items", () => {
+  wrapper
+    .find(".todo-item input")
+    .first()
+    .simulate("change", { target: { value: "New Title" } });
+
+  expect(props.onTodoChange).toHaveBeenCalledWith({
+    ...TODO_LIST[0],
+    title: "New Title"
+  });
+});
+```
+
+<Notes>
+
+And now we can write a test that simulates typing a value into an input, and make sure that makes its waya
+all the way back to the onChange callback that would trigger an API call.
+This is great - this test is resiliant to the TodoWrapper refactor that adds an extra layer of components in between the list
+and the items.
+
+You may be thinking, why did I waste my time learning about shallow?
+Well the first thing is, if you went into the TodoInput and changed the inputs to textareas,
+then your TodoList test would fail, even though the change was in its child
+
+But there's another problem...
+
+</Notes>
+
+---
+
+# The test fails 😞
+
+<Img src={mountFail} alt="Mount error message" />
+
+<Notes>
+
+This doesn't actually work. The error message says the problem is with UsernameInput, which is weird,
+because this test doesn't have anything to do with that.
+
+</Notes>
+
+---
+
+# Redux Troubles
+
+```jsx
+<TodoList>
+  <Connected(UsernameInput) /> <-- the problem
+  <TodoItem />
+  <TodoItem />
+```
+
+<Notes>
+
+If you've used redux before, you may already know what's going on here
+I don't want to get too into redux here, but the upshot is the username input component is a
+connect redux component, that will only work if there's a Provider in the component tree
+So even though the redux thing is on a child, and we don't care about the child in this test,
+we need to set up the test in a way that will make the component work.
+
+</Notes>
+
+---
+
+# No Connected Child:
+
+```jsx
+import { mount } from "enzyme";
+
+const wrapper = mount(<TodoList {...props} />);
+```
+
+<Notes>
+
+So you can only use this code to mount a component if it doesn't happen to have a redux
+child.
+
+</Notes>
+
+---
+
+```jsx
+import { mount } from "enzyme";
+import { Provider } from "react-redux";
+import configureMockStore from "redux-mock-store";
+import thunk from "redux-thunk";
+import defaultStore from "../redux/defaultStore";
+const middleware = [thunk];
+const mockStore = configureMockStore(middleware);
+
+const wrapper = mount(
+  <Provider store={store}>
+    <TodoList {...props} />
+  </Provider>
+);
+```
+
+<Notes>
+
+If any child (or grandchild) is connected though, you have to do, uh, some setup
+
+</Notes>
+
+---
+
+<BgImage
+  src="https://media.giphy.com/media/eBCnpuRGBhQGY/giphy.gif"
+  backgroundSize="cover"
+/>
+
+<Notes>
+
+Not ideal. And the problem isn't just react - you never know what some child component will do, that's the point of unit testing.
+
+I was once using a fancy text editor library. We wanted to test a simple change event, and we had to dig into the source code to figure out how to do that.
+
+</Notes>
+
+---
+
+# Mocks to the rescue!
+
+```jsx
+jest.mock("../user/UsernameInput", () => () => (
+  <div className="UsernameInput" />
+));
+
+const wrapper = mount(<TodoList {...props} />);
+```
+
+<Notes>
+
+Of course there's a standard solution to dependencies, which
+is mocking. We can mock out the child component with a
+stub that's easier to work with, and go on with our lives.
+
+This works, but then you have all the problems of mocks -
+you have to know what to mock, and have to keep those mocks
+up-to-date with the real implementation.
+
+Still, for something between a shallow render (where everything is mocked) and a full render (where nothing is), this can be a good choice.
+
+</Notes>
+
+---
+
+# React Testing Library
+
+```jsx
+import { render, fireEvent } from "@testing-library/react";
+
+it("shows an todo item", () => {
+  const result = render(element);
+
+  expect(result.getByDisplayValue(TODO_LIST[0].title)).toBeDefined();
+});
+```
+
+<Notes>
+
+So given that you're down with mount tests, then RTL is really nice
+
+It pushes you towards writing tests from a user perspective.
+
+So instead of saying, "find an input with the right css class, and check its value prop", you can just say, 'yo, is there an input with the right text on the page'?
+
+If you change the structure of the components, or switch from input to text area, this test will keep passing
+
+And there are lots of nice selectors, you can query by label, or placeholder, or a special test data id. 
+
+There's a whole ecosystem around this libary that's cropped up - including Cypress integration - so if that user-centered testing appeals to you, then dig in.
+
+</Notes>
 
 ---
 
