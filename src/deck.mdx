@@ -671,8 +671,8 @@ Easy as shallow, just different import
 ```jsx
 it("changes todo items", () => {
   wrapper
-    .find(".todo-item input")
-    .first()
+    .find("input")
+    .find({ value: TODO_LIST[0].title })
     .simulate("change", { target: { value: "New Title" } });
 
   expect(props.onTodoChange).toHaveBeenCalledWith({
@@ -819,12 +819,14 @@ Still, for something between a shallow render (where everything is mocked) and a
 
 ```jsx
 import { render, fireEvent } from "@testing-library/react";
-
-it("shows an todo item", () => {
-  const result = render(element);
-
-  expect(result.getByDisplayValue(TODO_LIST[0].title)).toBeDefined();
+...
+const input = result.getByDisplayValue('Get Milk');
+fireEvent.change(input, {
+  target: { value: "New Title" }
 });
+
+expect(props.onTodoChange).toHaveBeenCalledWith({
+...
 ```
 
 <Notes>
@@ -833,13 +835,64 @@ So given that you're down with mount tests, then RTL is really nice
 
 It pushes you towards writing tests from a user perspective.
 
-So instead of saying, "find an input with the right css class, and check its value prop", you can just say, 'yo, is there an input with the right text on the page'?
+So instead of saying, "find an input with the right css class, make sure it has the right value prop, then simulate an event from it", you can just say, 'yo, find the input with the right text, and fire a change event on it".
 
 If you change the structure of the components, or switch from input to text area, this test will keep passing
 
-And there are lots of nice selectors, you can query by label, or placeholder, or a special test data id. 
+And there are lots of nice selectors, you can query by label, or placeholder, or a special test data id. In the end it's still the same data in, DOM out tests as enzyme, but with a different twist.
 
 There's a whole ecosystem around this libary that's cropped up - including Cypress integration - so if that user-centered testing appeals to you, then dig in.
+
+</Notes>
+
+---
+
+# react-test-renderer
+
+<Notes>
+
+Finally there's react test renderer, which takes the opposite approach.
+Its API is even lower level than Enzymes. Enzyme or RTL is almost always a better choice, but
+this had a moment eariler this year while everyone else was catching up with some 16.8
+changes with react hooks, so you may see it in the wild.
+
+</Notes>
+
+---
+
+```jsx
+import renderer from "react-test-renderer";
+
+it("changes todo items", () => {
+  ...
+
+  const input = component.findByProps({
+    value: 'Get Milk'
+  });
+  input.props.onChange({ target: { value: "New Title" } });
+
+  expect(props.onTodoChange).toHaveBeenCalledWith({
+  ...
+```
+
+<Notes>
+
+So more like enzyme, without some of the user-centric helpers. But a totally 
+servicable library, and its nice that its by the react team,
+so it'll always support the latest features.
+There are also only a few matchers, so for simple tests there's less to learn.
+
+</Notes>
+
+---
+
+# Snapshot Testing
+
+<Notes>
+
+So far we've seen a couple different ways to write standard tests.
+
+Jest has a second method for writing tests that works with all these libraries.
 
 </Notes>
 
