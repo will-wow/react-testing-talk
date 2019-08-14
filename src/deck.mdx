@@ -528,6 +528,8 @@ This might make you decide not to make the right refactor, which is a bummer
 
 ---
 
+<BgImage opacity={0.5} src={contender3} backgroundColor="gray">
+
 <div style={{width: "80%", textAlign: 'center'}}>
 
 # react-test-renderer
@@ -541,10 +543,12 @@ This might make you decide not to make the right refactor, which is a bummer
 
 </div>
 
+</BgImage>
+
 <Notes>
 
 Also supporting shallow rendering is our second contender, React Test Renderer.
-By Facebook, only 6 months old, but lean and ready to fight. 
+By Facebook, only 6 months old, but lean and ready to fight.
 
 Yeah. so React has always come with its own test utils. But this year they
 added react-test-renderer, which renders a react component to JSON
@@ -625,6 +629,8 @@ So you can do things like trigger a click on a button that should effect a paren
 
 ---
 
+<BgImage opacity={0.5} src={contender2} backgroundColor="gray">
+
 <div style={{width: "80%", textAlign: 'center'}}>
 
 # React Testing Library
@@ -638,6 +644,8 @@ So you can do things like trigger a click on a button that should effect a paren
 | Weakness       | Isolated tests       |
 
 </div>
+
+</BgImage>
 
 <Notes>
 
@@ -669,48 +677,41 @@ RTL Guiding priciple
 
 ---
 
-# Enymze mount
-
 ```jsx
-import { mount } from "enzyme";
+import { render, fireEvent } from "@testing-library/react";
+const result = render(<TodoList {...props} />);
 
-const wrapper = mount(<TodoList {...props} />);
-```
-
-<Notes>
-
-Easy as shallow, just different import
-
-</Notes>
-
----
-
-```jsx
-it("changes todo items", () => {
-  wrapper
-    .find("input")
-    .find({ value: TODO_LIST[0].title })
-    .simulate("change", { target: { value: "New Title" } });
-
-  expect(props.onTodoChange).toHaveBeenCalledWith({
-    ...TODO_LIST[0],
-    title: "New Title"
-  });
+const input = result.getByDisplayValue('Get Milk');
+fireEvent.change(input, {
+  target: { value: "New Title" }
 });
+
+expect(props.onTodoChange).toHaveBeenCalledWith({
+...
 ```
 
 <Notes>
 
-And now we can write a test that simulates typing a value into an input, and make sure that makes its waya
-all the way back to the onChange callback that would trigger an API call.
-This is great - this test is resiliant to the TodoWrapper refactor that adds an extra layer of components in between the list
-and the items.
+In a RTL test, render, find the actual input that has the right value,
+change it, and make sure that event gets dispatched correctly.
+
+So we're actually working with input now, not just components.
+But RTL has a lot of nice selector that let you query by value,
+label, placeholder, or as a last resort a special data test id attribute.
+
+So you write these tests that are more how a user or manual tester thinks
+
+I find the input with the right value in it, change that input, it has an effect.
+
+this test is resiliant to the TodoWrapper refactor that adds an extra layer of components in between the list
+
+In the end it's still the same data in, DOM out tests as enzyme, but with a different twist.
+
+There's a whole ecosystem around this libary that's cropped up - including Cypress integration - so if that user-centered testing appeals to you, then dig in.
 
 You may be thinking, why did I waste my time learning about shallow?
-Well the first thing is, if you went into the TodoInput and changed the inputs to textareas,
-then your TodoList test would fail, even though the change was in its child
 
-But there's another problem...
+But here's the problem...
 
 </Notes>
 
@@ -750,17 +751,16 @@ we need to set up the test in a way that will make the component work.
 
 ---
 
-# No Connected Child:
+# Setup without a connected child:
 
 ```jsx
-import { mount } from "enzyme";
-
-const wrapper = mount(<TodoList {...props} />);
+import { render } from "@testing-library/react";
+const result = render(<TodoList {...props} />);
 ```
 
 <Notes>
 
-So you can only use this code to mount a component if it doesn't happen to have a redux
+So you can only use this code to render a component if it doesn't happen to have a redux
 child.
 
 </Notes>
@@ -768,7 +768,7 @@ child.
 ---
 
 ```jsx
-import { mount } from "enzyme";
+import { render } from "@testing-library/react";
 import { Provider } from "react-redux";
 import configureMockStore from "redux-mock-store";
 import thunk from "redux-thunk";
@@ -776,7 +776,7 @@ import defaultStore from "../redux/defaultStore";
 const middleware = [thunk];
 const mockStore = configureMockStore(middleware);
 
-const wrapper = mount(
+const result = render(
   <Provider store={store}>
     <TodoList {...props} />
   </Provider>
@@ -813,7 +813,7 @@ jest.mock("../user/UsernameInput", () => () => (
   <div className="UsernameInput" />
 ));
 
-const wrapper = mount(<TodoList {...props} />);
+const result = render(<TodoList {...props} />);
 ```
 
 <Notes>
@@ -832,33 +832,43 @@ Still, for something between a shallow render (where everything is mocked) and a
 
 ---
 
-# React Testing Library
+# Enzyme Mount
+
+<Notes>
+
+Enzyme, the older library, also supports full renders
+
+</Notes>
+
+---
 
 ```jsx
-import { render, fireEvent } from "@testing-library/react";
-...
-const input = result.getByDisplayValue('Get Milk');
-fireEvent.change(input, {
-  target: { value: "New Title" }
-});
+import { mount } from "enzyme";
+it("changes todo items", () => {
+  const wrapper = mount(<TodoList {...props} />);
+  wrapper
+    .find("input")
+    .find({ value: "Get Milk" })
+    .simulate("change", { target: { value: "New Title" } });
 
-expect(props.onTodoChange).toHaveBeenCalledWith({
-...
+  expect(props.onTodoChange).toHaveBeenCalledWith({
+    ...TODO_LIST[0],
+    title: "New Title"
+  });
+});
 ```
 
 <Notes>
 
-So given that you're down with mount tests, then RTL is really nice
+This the exact same test, with enzme mount instead of shallow.
+Still finding the Get Milk todo item, and replacing it with a new title
 
-It pushes you towards writing tests from a user perspective.
+But the test is a little less literate, a little more focused on
+inputs and props.
 
-So instead of saying, "find an input with the right css class, make sure it has the right value prop, then simulate an event from it", you can just say, 'yo, find the input with the right text, and fire a change event on it".
-
-If you change the structure of the components, or switch from input to text area, this test will keep passing
-
-And there are lots of nice selectors, you can query by label, or placeholder, or a special test data id. In the end it's still the same data in, DOM out tests as enzyme, but with a different twist.
-
-There's a whole ecosystem around this libary that's cropped up - including Cypress integration - so if that user-centered testing appeals to you, then dig in.
+If you're using enzyme already, I wouldn't switch to RTL for mount
+tests. But if you're not, then RTL is a little nicer for this
+kind of test.
 
 </Notes>
 
@@ -868,7 +878,7 @@ There's a whole ecosystem around this libary that's cropped up - including Cypre
 
 <Notes>
 
-Finally there's react test renderer, which takes the opposite approach, with a low-level api.
+Finally react test renderer, takes the opposite approach of RTL, has an even lower-level api than enzyme.
 
 </Notes>
 
@@ -891,14 +901,16 @@ it("changes todo items", () => {
 
 <Notes>
 
-So more like enzyme, but even lower level. A totally
-servicable library, and its nice that its by the react team,
+Same test one more time.
+
+A lot like enzyme, with targeting by css selector but fewer tools
+
+A totally servicable library, and its nice that its by the react team,
 so it'll always support the latest features.
 
 Had a moment earlier this year when React launched new stuff, though since caught up
 
-Enyzme and RTL are whole websites, API of RTR is
-one page
+Enyzme and RTL are whole websites, API of RTR is one page
 
 </Notes>
 
@@ -1015,17 +1027,22 @@ How do you use them together?
 
 - Enzyme Shallow unit tests
 - Enzyme Shallow Snapshots for components
-- Enzyme Mount for multi-component components (like a date picker)
+- Enzyme Mount for multi-component components (like TodoList)
 - Enzyme Mount Snapshots for page smoke tests
 - Cypress for integration testing
 
 <Notes>
 
 What we did on last project
+
 Mostly enzyme
+
 Used mount for complicated interatctions that went across multiple components
-Did a mount snapshot for every page in the app, so everything
-got covered by some test. They were sort of a pain
+
+Mount snapshot for each page. Breaks rule, but nice to smoke test everything and see what it will all look like
+just expect this to break a lot
+
+And cypress
 
 </Notes>
 
@@ -1037,6 +1054,14 @@ got covered by some test. They were sort of a pain
 - react-test-renderer shallow snapshot tests
 - Cypress Testing Library Integration Tests
 
+<Notes>
+
+Don't add enzyme for shallow, too confusing
+
+What i would probably try on next project, if team is willing
+
+</Notes>
+
 ---
 
 # It's all just
@@ -1047,7 +1072,9 @@ got covered by some test. They were sort of a pain
 
 <Notes>
 
-In the end, the testing technique for all these tools is the same
+Remember, in the end, all these are really similar, even if they look
+different.
+
 Given props, what renders, and given events what's called.
 
 What is the team familiar with, interested in,
@@ -1057,4 +1084,8 @@ will get to write tests and maintain them
 
 ---
 
+<BgImage src="https://media.giphy.com/media/I30wUMZmPvRyU/giphy.gif" backgroundColor="#505050">
+
 # Good luck!
+
+</BgImage>
