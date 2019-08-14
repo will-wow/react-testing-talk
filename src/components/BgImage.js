@@ -8,21 +8,35 @@ const BgImage = ({
   color,
   backgroundSize,
   backgroundColor,
+  children,
   ...props
 }) => {
   return (
-    <Image
-      {...props}
+    <div
+      className="bg-image"
       sx={{
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        position: "relative",
+        width: "100%",
+        height: "100%",
         color,
-        backgroundSize,
-        opacity,
-        backgroundColor
+        backgroundColor,
+        zIndex: 1
       }}
-    />
+    >
+      <Image
+        {...props}
+        sx={{
+          backgroundSize,
+          opacity,
+          position: "absolute",
+          zIndex: -1
+        }}
+      />
+      {children}
+    </div>
   );
 };
 

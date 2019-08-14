@@ -22,6 +22,9 @@ import kentShallow from "./assets/kent-shallow.png";
 import mountFail from "./assets/mount-fail.png";
 import snapshotGood from "./assets/snapshot-good.png";
 import snapshotBad from "./assets/snapshot-bad.png";
+import contender1 from "./assets/contender-1.jpg";
+import contender2 from "./assets/contender-2.jpg";
+import contender3 from "./assets/contender-3.jpg";
 
 # Testing React in 2019
 
@@ -34,8 +37,9 @@ wow@carbonfive.com | [github.com/will-wow](http://github.com/will-wow)
 <Notes>
 
 Hi, C5
-We write a lot of react, and are into testing
-How many people here work at a company that writes react?
+We write a lot of react, and are into testing.
+Thus the talk.
+How many people here work at a company that writes react, whether or not you do
 How many have written a react component?
 How many are happy with their testing strategy?
 
@@ -57,6 +61,48 @@ means React isn't going away any time soon, there's a long tail for these framew
 
 ---
 
+# React 101
+
+<Notes>
+
+One-minute intro to react if you haven't seen it
+
+</Notes>
+
+---
+
+```jsx
+const TodoItem = ({ todo, onChange }) => {
+  const isDone = todo.done;
+
+  return (
+    <div className="todo-item">
+      <input value={todo.title} onChange={onChange} />
+      <button onClick={onChange(!done)}>Done</button>
+    </div>
+  );
+};
+```
+
+<Notes>
+
+Competitor to Angular, Vue, or backbone or ember, or jquery
+
+A component is a funtion that takes in data like todo item and callbacks like onChange,
+and renders html, inside of JS, where you can
+interpolate data and bind callbacks
+
+There's a lot more with classes and data stores and
+lifecycle methods, but this is the basics.
+DOM is a function of the inputs, and React figures
+out how to update the dom to look the way you want it to
+
+Way different from jquery, where you say "hey, input, this is your value now"
+
+</Notes>
+
+---
+
 <div style={{width: "80%", textAlign: 'center'}}>
 
 ## React Testing is All Over the Place
@@ -71,9 +117,11 @@ means React isn't going away any time soon, there's a long tail for these framew
 
 <Notes>
 
-_Testing_ React, on the other hand, is a little all over the place right now.
+Like we saw, react is all over the place. But react testing is _all over the place_
 
-You've got three popular test runners, three testing frameworks, and three main types of test for unit testing. We'll walk through all of these tonight.
+You've got at least three popular test runners, three testing frameworks, and three main types of test
+
+just for unit testing. We'll walk through all of these tonight.
 
 </Notes>
 
@@ -143,64 +191,25 @@ So yeah, don't use all the things
 
 <Notes>
 
+Three big test runners. All general purpose,
+good for business logic and node
+
 How many people have used jasmine, mocha, jest
 
 </Notes>
 
 ---
 
-# BDD Expectations
-
-describe/it/should vs. test/assert
-
-<Notes>
-
-All of these test runners either include or support BDD-style expectations, where you use describe, it, and should to write your tests. There's also TDD-style, where you use 'test' and 'assert', but BDD seems to be in vogue right now.
-
-</Notes>
-
----
-
-```javascript
-describe("simple tests", () => {
-  it("finds matching objects", () => {
-    expect([1, 2, 3]).toEqual([1, 2, 3]);
-  });
-
-  it("finds partial string matches", () => {
-    expect("Hello World").toContain("World");
-  });
-
-  it("finds missing values", () => {
-    expect([1, 2, 3]).toEqual([1, 3]);
-  });
-});
-```
-
-<Notes>
-
-Here's what Jest looks like, but all three of these are going to look about the same.
-Notice that this isn't react-specific. Jest, Jasmine, and Mocha are all general-purpose
-test runners, they can run tests for Node or whatever too.
-So how to choose?
-
-</Notes>
-
----
+<Flex justifyContent="space-between">
 
 <Img src={jasmineLogo} sx={{ mb: 3 }} />
-
-- Familiar from AngularJS days
-- Runs in a browser with Karma
-- Runs headless in node these days
-- Still works just fine
-
----
-
 <Img src={mochaLogo} />
 
-- Popular Node test framework 👍
-- Usually paired with Chai for BDD expectations 🍵
+</Flex>
+
+- Popular for Angular (and AngularJS)
+- Popular for Node.js
+- Both fine choices if you're already using them :+1:
 
 ---
 
@@ -210,6 +219,7 @@ So how to choose?
 - Great Visual Studio Code integration 🤓
 - Comes with change watcher and code coverage 👀
 - The standard choice for React ✅
+- Good for other JS projects too
 
 ---
 
@@ -242,7 +252,7 @@ So when Rit asks what your code coverage is, you can answer him right away
 
 # TL;DR: Choose Jest for new projects
 
-# Don't re-write existing tests
+# Don't change existing tests suites
 
 </Invert>
 
@@ -267,92 +277,6 @@ and then we'll dig in to see the differences.
 
 ---
 
-<div style={{width: "80%", textAlign: 'center'}}>
-
-# Enzyme
-
-|                |                 |
-| -------------- | --------------- |
-| Author         | AirBnB          |
-| Initial Commit | 8/10/2015       |
-| Initial Commit | 17,699          |
-| Strengh        | Shallow testing |
-| Weakness       | Refactoring     |
-
-</div>
-
-<Notes>
-
-If you've testing a react app in the last few years, you probably used enzyme.
-It's mature and well supported, and particularly good for shallow testing, which we'll get into in a bit
-But, you'll find that refactoring your code without changing functionality can break enzyme tests
-
-</Notes>
-
----
-
-<div style={{width: "80%", textAlign: 'center'}}>
-
-# React Testing Library
-
-|                |                      |
-| -------------- | -------------------- |
-| Author         | Kent Dodds           |
-| Initial Commit | 3/19/2018            |
-| Github Stars   | 8,211                |
-| Strengh        | User-focused testing |
-| Weakness       | Isolated tests       |
-
-</div>
-
-<Notes>
-
-Then last year, Kent Dodds came out with RTL, and it's really taken off
-It's focused on getting you to write tests from a user perspective.
-The idea is that if you refactor the structure or classnames in a component
-but it doesn't change from a UX perspective, then the test should still pass
-But, it does make it harder to write isolated tests, as we'll see
-
-</Notes>
-
----
-
-"The more your tests resemble the way your software is used,  
-the more confidence they can give you."  
--- Kent Dodds
-
-<Notes>
-
-RTL Guiding priciple
-
-</Notes>
-
----
-
-<div style={{width: "80%", textAlign: 'center'}}>
-
-# react-test-renderer
-
-|                |                          |
-| -------------- | ------------------------ |
-| Author         | Facebook                 |
-| Initial Commit | 3/28/2019                |
-| Strengh        | Simplicity, React Native |
-| Weakness       | Low level                |
-
-</div>
-
-<Notes>
-
-Finally, React has always come with its own test utils. But this year they
-added react-test-renderer, which renders a react component to JSON
-They don't rely on a virtual dom, so support react native
-particularly good for snapshot tests, but supports some other test types.
-
-</Notes>
-
----
-
 # Sample app
 
 <iframe
@@ -365,7 +289,7 @@ particularly good for snapshot tests, but supports some other test types.
 <Notes>
 
 As we walk through these choices, I find it's nice to have a concerete example
-The traditional todo app, made with react and redux.
+Ye olde todo app, made with react and redux.
 
 - Add, remove done
 - When all are done, you get a Inbox Zero message
@@ -415,10 +339,9 @@ const props = {
 
 <Notes>
 
-As a note, for all these tests we'll use this same set of props
-in React a component takes a set of props to render itself
-React functions are functions that take props and return HTML
-So if todo list has two items, then the component will render two input boxes
+for all these tests we'll use this same set of props
+as we saw, a component takes a set of props to render itself and return HTML
+So if todo list prop has two items, then the component will render two input boxes
 Also, jest.fn is how you make a spy in jest.
 A spy is a function that we can make return something if we want
 But either way can check if its been called in a test.
@@ -445,11 +368,6 @@ Tradtional Expectations vs Snapshots
 
 <Notes>
 
-There are two decisions you have to make about any component test
-Shallow renders one component, full renders children
-Traditional expectations are how you normally write tests
-Expect x to have prop y
-Snapshots take a snapshot of the dom, and fail if it changes
 Let's go through them
 
 </Notes>
@@ -459,14 +377,14 @@ Let's go through them
 # Shallow Render
 
 ```jsx
-<TodoList>
+<div className="todo-list">
   <Connected(UsernameInput) />
   <TodoItem />
   <TodoItem />
   Done Items
   <TodoItem />
   <TodoItem />
-</TodoList>
+</div>
 ```
 
 <Notes>
@@ -475,6 +393,36 @@ In a shallow test, you only render one level deep. So if I shallow-rendered the 
 its children, which are TodoItem components. But it doesn't go and render those children,
 so it doesn't go all the way to the level of buttons and inputs
 Makes for good unit testing - TodoList doesn't know how its children render themselves, so arguably its test shouldn't either
+
+</Notes>
+
+---
+
+<BgImage opacity={0.5} src={contender1} backgroundColor="gray">
+
+<div style={{width: "80%", textAlign: 'center'}}>
+
+# Enzyme
+
+|                |                 |
+| -------------- | --------------- |
+| Author         | AirBnB          |
+| Initial Commit | 8/10/2015       |
+| Github Stars   | 17,699          |
+| Strengh        | Shallow testing |
+| Weakness       | Refactoring     |
+
+</div>
+
+</BgImage>
+
+<Notes>
+
+That brings us to the first contender, Enyzme
+By AirBnB, an elderly 4 years old, can this reigning champion survive?
+It's great at shallow testing, but watch out for refactoring!
+
+Yeah is that how boxing, works? I dunno.
 
 </Notes>
 
@@ -497,12 +445,14 @@ Import shallow, and render the component with some props
 Then you have a wrapper that you can traverse and assert on
 Check that it has one TodoItem for each list item.
 
+Bad new there are two more of those boxing things to go
+
 </Notes>
 
 ---
 
 ```jsx
-it("passes props down", () => {
+it("show a todo item input?", () => {
   expect(
     wrapper
       .find("TodoItem")
@@ -538,14 +488,14 @@ look at an example:
 ---
 
 ```jsx
-<TodoList>
+<div className="todo-list">
   Things to do:
   <TodoItem todo={todos[0]}>
   <TodoItem todo={todos[1]}>
   Done:
   <TodoItem todo={todos[2]}>
   <TodoItem todo={todos[3]}>
-</TodoList>
+</div>
 ```
 
 <Notes>
@@ -562,10 +512,10 @@ That would look like:
 # Refactored
 
 ```jsx
-<TodoList>
+<div className="todo-list">
   <TodoWrapper done={false} todos={[todos[0], todos[1]]} />
   <TodoWrapper done={true} todos={[todos[2], todos[3]]} />
-</TodoList>
+</div>
 ```
 
 <Notes>
@@ -573,6 +523,33 @@ That would look like:
 Seems like a good refactor, but now all the tests are broken, because TodoList isn't rendering TodoItems anymore
 So even though from a user perspective the UX is exactly the same, we have to totally rewrite our tests
 This might make you decide not to make the right refactor, which is a bummer
+
+</Notes>
+
+---
+
+<div style={{width: "80%", textAlign: 'center'}}>
+
+# react-test-renderer
+
+|                |                          |
+| -------------- | ------------------------ |
+| Author         | Facebook                 |
+| Initial Commit | 3/28/2019                |
+| Strengh        | Simplicity, React Native |
+| Weakness       | Low level                |
+
+</div>
+
+<Notes>
+
+Also supporting shallow rendering is our second contender, React Test Renderer.
+By Facebook, only 6 months old, but lean and ready to fight. 
+
+Yeah. so React has always come with its own test utils. But this year they
+added react-test-renderer, which renders a react component to JSON
+They don't rely on a virtual dom, so support react native
+particularly good for snapshot tests, but supports some other test types.
 
 </Notes>
 
@@ -603,7 +580,8 @@ So less interesting
 
 <Notes>
 
-Kent Dodds isn't a fan of shallow testing, so... yeah, no shallow in his library.
+And finally RTL
+I'm not going to do the voice yet because Kent isn't a fan of shallow testing, so it's not competing in this fight
 
 </Notes>
 
@@ -642,6 +620,50 @@ Here's what the TodoList looks like from a mount test.
 You can see the TodoList, Username input, and individual TodoItems, which are all components
 But they're rendered down to divs and buttons, instead of components
 So you can do things like trigger a click on a button that should effect a parent's state
+
+</Notes>
+
+---
+
+<div style={{width: "80%", textAlign: 'center'}}>
+
+# React Testing Library
+
+|                |                      |
+| -------------- | -------------------- |
+| Author         | Kent Dodds           |
+| Initial Commit | 3/19/2018            |
+| Github Stars   | 8,211                |
+| Strengh        | User-focused testing |
+| Weakness       | Isolated tests       |
+
+</div>
+
+<Notes>
+
+Which brings us back to our third contender, RTL.
+An independent fighter, it's a year and a half old, and the underdog faviorite. It's focused on advanced user-facing techniques, but it's not know for isolated testing.
+
+Ok that's the last of those.
+
+So this RTL is came out last year, and really quickly
+got popular, felt like it came out of nowhere.
+It's focused on getting you to write tests from a user perspective.
+
+it's all about sloving that ItemWrapper test failure issue
+But, it does make it harder to write isolated tests, as we'll see
+
+</Notes>
+
+---
+
+"The more your tests resemble the way your software is used,  
+the more confidence they can give you."  
+-- Kent Dodds
+
+<Notes>
+
+RTL Guiding priciple
 
 </Notes>
 
@@ -846,10 +868,7 @@ There's a whole ecosystem around this libary that's cropped up - including Cypre
 
 <Notes>
 
-Finally there's react test renderer, which takes the opposite approach.
-Its API is even lower level than Enzymes. Enzyme or RTL is almost always a better choice, but
-this had a moment eariler this year while everyone else was catching up with some 16.8
-changes with react hooks, so you may see it in the wild.
+Finally there's react test renderer, which takes the opposite approach, with a low-level api.
 
 </Notes>
 
@@ -872,10 +891,14 @@ it("changes todo items", () => {
 
 <Notes>
 
-So more like enzyme, without some of the user-centric helpers. But a totally
+So more like enzyme, but even lower level. A totally
 servicable library, and its nice that its by the react team,
 so it'll always support the latest features.
-There are also only a few matchers, so for simple tests there's less to learn.
+
+Had a moment earlier this year when React launched new stuff, though since caught up
+
+Enyzme and RTL are whole websites, API of RTR is
+one page
 
 </Notes>
 
@@ -899,7 +922,7 @@ output has changed at all. If it does, the test fails
 
 ---
 
-<Img src={snapshot} />
+<Img src={snapshotGood} />
 
 <Notes>
 
@@ -991,8 +1014,9 @@ How do you use them together?
 # Combination 1
 
 - Enzyme Shallow unit tests
+- Enzyme Shallow Snapshots for components
 - Enzyme Mount for multi-component components (like a date picker)
-- Enzyme Mount Snapshots for pages
+- Enzyme Mount Snapshots for page smoke tests
 - Cypress for integration testing
 
 <Notes>
@@ -1000,35 +1024,37 @@ How do you use them together?
 What we did on last project
 Mostly enzyme
 Used mount for complicated interatctions that went across multiple components
-Did a mount snapshot for every page in the app, so everything 
+Did a mount snapshot for every page in the app, so everything
 got covered by some test. They were sort of a pain
 
-
 </Notes>
-
-# Combination 2
-
-<Notes>
-
-- React Testing Library component tests
-- react-test-renderer shallow snapshot test for every component
-- Cypress Testing Library Integration Tests
-
-</Notes>
-
 
 ---
 
-# It's all just props => elements, events => spies
+# Combination 2
+
+- React Testing Library component tests
+- react-test-renderer shallow snapshot tests
+- Cypress Testing Library Integration Tests
+
+---
+
+# It's all just
+
+## props => elements
+
+## events => callbacks
 
 <Notes>
 
 In the end, the testing technique for all these tools is the same
 Given props, what renders, and given events what's called.
 
-So the choice is mostly about what the team is familiar with, or
-interesting in using.
-
-Good luck!
+What is the team familiar with, interested in,
+will get to write tests and maintain them
 
 </Notes>
+
+---
+
+# Good luck!
