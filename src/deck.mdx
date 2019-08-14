@@ -25,6 +25,7 @@ import snapshotBad from "./assets/snapshot-bad.png";
 import contender1 from "./assets/contender-1.jpg";
 import contender2 from "./assets/contender-2.jpg";
 import contender3 from "./assets/contender-3.jpg";
+import blog from "./assets/blog.png";
 
 # Testing React in 2019
 
@@ -473,12 +474,40 @@ So nice and isolated
 
 ---
 
-# Shallow Downside: Refactoring
+# Problem: Hooks
 
 <Notes>
 
-I like this approach
-One big downside is refactoring - change to the code, but not what it does
+One issue you'll run into is with testing react hooks.
+They're a feature in react 16.8 that changes the way we write components.
+The details aren't important, but if you write component in new hooks way
+shallow testing gives you some problems
+
+</Notes>
+
+---
+
+<a
+  href="https://blog.carbonfive.com/2019/08/05/shallow-testing-hooks-with-enzyme/"
+  target="_blank"
+>
+  <Img src={blog} alt="blog" />
+</a>
+
+<Notes>
+
+Luckily, (shameless plug time), there's a great blog post about how to shallow test hooks
+which you should read, i hear good things about the author
+
+</Notes>
+
+---
+
+# Bigger Problem: Refactoring
+
+<Notes>
+
+A more serious downside is refactoring - change to the code, but not what it does
 a good react dev looks for opportunities to refactor a chunk of html into a component
 Shallow makes that harder
 look at an example:
@@ -522,7 +551,10 @@ That would look like:
 
 Seems like a good refactor, but now all the tests are broken, because TodoList isn't rendering TodoItems anymore
 So even though from a user perspective the UX is exactly the same, we have to totally rewrite our tests
-This might make you decide not to make the right refactor, which is a bummer
+
+I've found that this makes devs hesitate to make a good refactor, which is no good
+
+I want to mention, I personally like shallow testing, but it's good to know why people are moving away from it.
 
 </Notes>
 
@@ -585,7 +617,7 @@ So less interesting
 <Notes>
 
 And finally RTL
-I'm not going to do the voice yet because Kent isn't a fan of shallow testing, so it's not competing in this fight
+I'm not going to do the voice yet because Kent isn't a fan of shallow testing, so he's not competing in this fight
 
 </Notes>
 
