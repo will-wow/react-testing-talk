@@ -5050,10 +5050,10 @@ gatsby-telemetry@^1.1.9:
     stack-utils "1.0.2"
     uuid "3.3.2"
 
-gatsby-theme-mdx-deck@^3.0.8:
-  version "3.0.8"
-  resolved "https://registry.yarnpkg.com/gatsby-theme-mdx-deck/-/gatsby-theme-mdx-deck-3.0.8.tgz#eaffda924fc4813e14c773515fd025d780fe222b"
-  integrity sha512-UzDnmURi10DoyIJx7WVNG/IW4V+saAAhXlVQoHtB8/OhwJV7Pzj1mjFaOYmWtpI/PJ5qWRhHPYFLOx8+aCwU1Q==
+gatsby-theme-mdx-deck@^3.0.9:
+  version "3.0.9"
+  resolved "https://registry.yarnpkg.com/gatsby-theme-mdx-deck/-/gatsby-theme-mdx-deck-3.0.9.tgz#fcf661a9f209535d1dbca324a91b8943c4e5e400"
+  integrity sha512-h/U3RPqgqThGHd8tsd7l5KNyS1swsMl+r8h16izs4uFhEoiRm9+eFg7RkxsjquB3OpRE49KVR+IiAMk06zbtzg==
   dependencies:
     "@emotion/core" "^10.0.14"
     "@mdx-deck/themes" "^3.0.8"
@@ -7313,10 +7313,10 @@ mdurl@^1.0.1:
   resolved "https://registry.yarnpkg.com/mdurl/-/mdurl-1.0.1.tgz#fe85b2ec75a59037f2adfec100fd6c601761152e"
   integrity sha1-/oWy7HWlkDfyrf7BAP1sYBdhFS4=
 
-mdx-deck@^3.0.8:
-  version "3.0.8"
-  resolved "https://registry.yarnpkg.com/mdx-deck/-/mdx-deck-3.0.8.tgz#b3e107b9877eb6e2740266fbbb72274b2643119c"
-  integrity sha512-LMnxAtrB4mFlnC3Ow+FRNkH98KTRzEJb1+sLyazEOHW6a86wKpHuTPIy0pJRVK4I1jJ00VyhGgqLJslaZoS/Iw==
+mdx-deck@^3.0.9:
+  version "3.0.9"
+  resolved "https://registry.yarnpkg.com/mdx-deck/-/mdx-deck-3.0.9.tgz#6e33e3d9fff57dc3bb2d905f835c4ff19274b9fb"
+  integrity sha512-H4gQZqkUmRF90k9TcNJ0GdLeD8kGqkxzbpfP2oJiD6UaxjVV8e3auAlU77OLGtEEq6cTgeYEO/gxTCqzasPWTw==
   dependencies:
     "@mdx-deck/themes" "^3.0.8"
     chalk "^2.4.2"
@@ -7324,7 +7324,7 @@ mdx-deck@^3.0.8:
     fs-extra "^8.1.0"
     gatsby "^2.13.24"
     gatsby-plugin-compile-es6-packages "^2.0.0"
-    gatsby-theme-mdx-deck "^3.0.8"
+    gatsby-theme-mdx-deck "^3.0.9"
     initit "^1.0.0-2"
     meow "^5.0.0"
     react "^16.8.6"
